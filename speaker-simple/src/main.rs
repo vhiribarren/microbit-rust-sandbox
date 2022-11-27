@@ -9,7 +9,7 @@ use microbit::hal::prelude::*;
 use microbit::hal::pwm::Pwm;
 use panic_halt as _;
 
-const SOUND_FREQUENCY: u32 = 1000;
+const SOUND_FREQUENCY: u32 = 523;
 const SOUND_VOLUME: f32 = 0.7;
 
 #[entry]
@@ -26,6 +26,7 @@ fn main() -> ! {
     pwm.set_output_pin(hal::pwm::Channel::C0, speaker_pin);
     pwm.set_period(SOUND_FREQUENCY.hz());
 
+    // Max duty changes after period is set, so must be after set_period
     let max_volume = pwm.get_max_duty()/2;
     let volume = (SOUND_VOLUME * (max_volume as f32)) as u16;
 
