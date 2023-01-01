@@ -9,17 +9,15 @@ use microbit::hal::timer::Timer;
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
 
-
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
 
     let board = Board::take().unwrap();
-    let _clocks = microbit::hal::clocks::Clocks::new(board.CLOCK).enable_ext_hfosc();
-
     let mut timer = Timer::new(board.TIMER0);
 
     timer.start(core::u32::MAX);
+    
     loop {
         if timer.read() > 1_000_000 {
             rprintln!("1 second");
