@@ -25,13 +25,14 @@ SOFTWARE.
 #![no_main]
 #![no_std]
 
-use core::mem::transmute;
+use core::mem;
 
 use cortex_m_rt::entry;
 use nrf52833_hal::pac::Peripherals;
 use nrf52833_rgb_led_matrix::{
-    canvas::Canvas, fonts::Font5x7, init_scheduled_led_matrix_system,
-    register_panic_handler_with_logging,
+    canvas::{Canvas, Color},
+    fonts::Font5x7,
+    init_scheduled_led_matrix_system, register_panic_handler_with_logging,
 };
 
 const LOGO_DATA: &[u8; 3072] = include_bytes!("logo.in");
@@ -39,11 +40,11 @@ const LOGO_DATA: &[u8; 3072] = include_bytes!("logo.in");
 #[entry]
 fn main() -> ! {
     register_panic_handler_with_logging!();
-
     let peripherals = Peripherals::take().unwrap();
     let scheduled_led_matrix = init_scheduled_led_matrix_system!(peripherals);
 
-    let logo_canvas = Canvas::<32, 32>(unsafe { transmute(*LOGO_DATA) });
+    let logo_array = unsafe { mem::transmute::<&[u8; 3072], &[[Color; 32]; 32]>(LOGO_DATA) };
+    let logo_canvas = Canvas::<32, 32>(*logo_array);
 
     cortex_m::interrupt::free(|cs| {
         let mut borrowed_scheduled_led_matrix = scheduled_led_matrix.borrow(cs).borrow_mut();
