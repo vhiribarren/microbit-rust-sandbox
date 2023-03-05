@@ -25,25 +25,31 @@ SOFTWARE.
 #![no_main]
 #![no_std]
 
-mod logo;
+use core::mem::transmute;
 
 use cortex_m_rt::entry;
 use nrf52833_hal::pac::Peripherals;
 use nrf52833_rgb_led_matrix::{
-    fonts::Font5x7, init_scheduled_led_matrix_system, register_panic_handler_with_logging,
+    canvas::Canvas, fonts::Font5x7, init_scheduled_led_matrix_system,
+    register_panic_handler_with_logging,
 };
+
+const LOGO_DATA: &[u8; 3072] = include_bytes!("logo.in");
 
 #[entry]
 fn main() -> ! {
     register_panic_handler_with_logging!();
+
     let peripherals = Peripherals::take().unwrap();
     let scheduled_led_matrix = init_scheduled_led_matrix_system!(peripherals);
+
+    let logo_canvas = Canvas::<32, 32>(unsafe { transmute(*LOGO_DATA) });
 
     cortex_m::interrupt::free(|cs| {
         let mut borrowed_scheduled_led_matrix = scheduled_led_matrix.borrow(cs).borrow_mut();
         let led_matrix = borrowed_scheduled_led_matrix.as_mut().unwrap();
         let canvas = led_matrix.borrow_mut_canvas();
-        canvas.draw_canvas(0, 0, &logo::AXA, Default::default());
+        canvas.draw_canvas(0, 0, &logo_canvas, Default::default());
         canvas.draw_text(36, 0, "GETD", Font5x7, Default::default());
         canvas.draw_text(39, 8, "TEX", Font5x7, Default::default());
         canvas.draw_text(33, 17, "LILLE", Font5x7, Default::default());
