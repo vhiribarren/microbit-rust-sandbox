@@ -1,0 +1,13 @@
+[package]
+name = "rgb-led-matrix-birthday"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cortex-m = "0.7.6"
+cortex-m-rt = "0.7.0"
+nrf52833-hal = "0.16.0"
+panic-halt = "0.2.0"
+rtt-target = { version = "0.3.1", features = ["cortex-m"], optional = true }
+nrf52833-rgb-led-matrix = {git = "https://github.com/vhiribarren/nrf52833-rgb-led-matrix-lib-rust"}
+embassy-executor = "0.1.1"
